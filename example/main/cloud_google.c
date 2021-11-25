@@ -12,6 +12,7 @@
 #include "lwip/sys.h"
 #include "iotc.h"
 #include "iotc_jwt.h"
+#include "dht.h"
 
 extern const uint8_t ec_pv_key_start[] asm("_binary_private_key_pem_start");
 extern const uint8_t ec_pv_key_end[] asm("_binary_private_key_pem_end");
@@ -19,8 +20,9 @@ extern const uint8_t ec_pv_key_end[] asm("_binary_private_key_pem_end");
 #define IOTC_UNUSED(x) (void)(x)
 /* Create a timer to publish every N seconds. */
 #define publish_timer 30
-#define TEMPERATURE_DATA "{temp : %d}"
+#define TEMPERATURE_DATA "{\"temperature\":%.1f,\"humidity\":%.1f}"
 #define MIN_TEMP 20
+#define DHT11_PIN 4
 
 char *subscribe_topic_command, *subscribe_topic_config;
 
@@ -62,12 +64,17 @@ void publish_telemetry_event(iotc_context_handle_t context_handle,
     char *publish_topic = NULL;
     asprintf(&publish_topic, PUBLISH_TOPIC_EVENT, CONFIG_GIOT_DEVICE_ID);
     char *publish_message = NULL;
-    asprintf(&publish_message, TEMPERATURE_DATA, MIN_TEMP + rand() % 10);
-    ESP_LOGI(CLOUD_TAG, "publishing msg \"%s\" to topic: \"%s\"", publish_message, publish_topic);
-
-    iotc_publish(context_handle, publish_topic, publish_message,
-                 iotc_example_qos,
-                 /*callback=*/NULL, /*user_data=*/NULL);
+	int16_t temperature;
+    int16_t humidity;
+	esp_err_t ret = dht_read_data(DHT_TYPE_DHT11, (gpio_num_t)DHT11_PIN, &humidity, &temperature);
+	if (ret == ESP_OK) {
+	    asprintf(&publish_message, TEMPERATURE_DATA, temperature / 10.0, humidity / 10.0);
+		ESP_LOGI(CLOUD_TAG, "publishing msg \"%s\" to topic: \"%s\"", publish_message, publish_topic);
+		
+		iotc_publish(context_handle, publish_topic, publish_message,
+		             iotc_example_qos,
+					 /*callback=*/NULL, /*user_data=*/NULL);
+	}	 
     free(publish_topic);
     free(publish_message);
 }

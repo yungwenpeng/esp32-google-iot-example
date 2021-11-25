@@ -4,3 +4,6 @@
 [submodule "iot-device-sdk-embedded-c"]
 	path = iot-device-sdk-embedded-c
 	url = https://github.com/GoogleCloudPlatform/iot-device-sdk-embedded-c.git
+[submodule "esp-idf-lib"]
+	path = esp-idf-lib
+	url = https://github.com/UncleRus/esp-idf-lib.git
