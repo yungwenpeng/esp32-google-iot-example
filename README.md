@@ -20,4 +20,7 @@ Refer to : https://github.com/espressif/esp-google-iot/tree/master/examples/smar
   Note : copy ECkey first  
   $ idf.py build  
   $ idf.py -p /dev/ttyUSB0 flash monitor  
-     
+  
+  
+Demo Snapshot:
+![esp32_google_iot_example](esp32_google_iot_example.PNG)  
