@@ -14,6 +14,7 @@
 #define PUBLISH_TOPIC_EVENT "/devices/%s/events"
 #define PUBLISH_TOPIC_STATE "/devices/%s/state"
 
+void reconnect_mqtt(void);
 void cloud_start(void);
 
 #endif /* PRJ_CLOUD_MODULE */

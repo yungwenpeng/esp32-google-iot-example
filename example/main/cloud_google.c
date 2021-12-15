@@ -146,10 +146,11 @@ void on_connection_state_changed(iotc_context_handle_t in_context_handle,
        in this example file and invokes the IoTC API to publish a
        message. */
     case IOTC_CONNECTION_STATE_OPEN_FAILED:
-        ESP_LOGI(CLOUD_TAG, "ERROR! Connection has failed reason %d", state);
+        ESP_LOGE(CLOUD_TAG, "ERROR! Connection has failed reason %d", state);
 
         /* exit it out of the application by stopping the event loop. */
         iotc_events_stop();
+		reconnect_mqtt();
         break;
 
     /* IOTC_CONNECTION_STATE_CLOSED is set when the IoTC Client has been
@@ -175,6 +176,7 @@ void on_connection_state_changed(iotc_context_handle_t in_context_handle,
             /* The connection has been closed intentionally. Therefore, stop
                the event processing loop as there's nothing left to do
                in this example. */
+			ESP_LOGE(CLOUD_TAG, "IOTC_CONNECTION_STATE_CLOSED - reason %d!", state);
             iotc_events_stop();
         } else {
             ESP_LOGE(CLOUD_TAG, "connection closed - reason %d!", state);
@@ -264,6 +266,11 @@ static void mqtt_task(void *pvParameters)
     iotc_shutdown();
 
     vTaskDelete(NULL);
+}
+
+void reconnect_mqtt(void)
+{
+    xTaskCreate(&mqtt_task, "mqtt_task", 8192, NULL, 5, NULL);
 }
 
 void cloud_start(void)
